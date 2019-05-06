@@ -1,3 +1,3 @@
 @echo off
-copy D:\chenchen\code\opengl\GLAddons\gla.o .\gla.o
-copy D:\chenchen\code\opengl\GLAddons\gla.ppu .\gla.ppu
+copy F:\Github\GLA\gla.o .\gla.o
+copy F:\Github\GLA\gla.ppu .\gla.ppu
