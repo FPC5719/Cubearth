@@ -4,7 +4,7 @@ unit block;
 interface
 
 uses
-	gl,gla,perlin;
+	gl,gla,perlin,gVector;
 	
 procedure InitBML;
 
@@ -21,15 +21,20 @@ type
 	end;
 
 type
+	TBlockList=specialize TVector<TBlock>;
+
+type
 	TChunk=class
 	private
 		blk:array[0..15,0..63,0..15] of TBlock;
+		rl:TBlockList;
 		idx,idy:longint;
 		fa:TObject;
 	public
 		constructor Create(f:TObject;x,y:longint);
 		destructor Destroy;override;
 		function GetBlockType(x,y,z:longint):longint;
+		procedure UpdateRedrawList;
 		procedure Redraw;
 	end;
 
@@ -77,6 +82,7 @@ end;
 constructor TChunk.Create(f:TObject;x,y:longint);
 var i,j,k,t:longint;
 begin
+	// writeln('Creating Chunk:',x,',',y);
 	fa:=f; idx:=x; idy:=y;
 	for i:=0 to 15 do for k:=0 to 15 do begin
 		t:=round(GetHeight(i/5+idx,k/5+idy)*32);
@@ -86,6 +92,8 @@ begin
 			else blk[i,j,k].id:=0;
 		end;
 	end;
+	rl:=TBlockList.Create;
+	UpdateRedrawList;
 end;
 destructor TChunk.Destroy;
 var i,j,k:longint;
@@ -94,24 +102,36 @@ begin
 end;
 function TChunk.GetBlockType(x,y,z:longint):longint;
 begin exit(blk[x,y,z].id); end;
-procedure TChunk.Redraw;
+procedure TChunk.UpdateRedrawList;
+var i,j,k,t,nx,ny,nz:longint;
 const
 	dx:array[1..6] of longint=(1,0,-1,0,0,0);
 	dy:array[1..6] of longint=(0,1,0,-1,0,0);
 	dz:array[1..6] of longint=(0,0,0,0,1,-1);
-var i,j,k,t,nx,ny,nz:longint;
 begin
-	glPushMatrix;
-	glTranslatef(idx*16,0,idy*16);
+	rl.Clear;
 	for i:=0 to 15 do for j:=0 to 63 do for k:=0 to 15 do begin
-		if not BDL[GetBlockType(i,j,k)].show then continue;
+		if not BDL[blk[i,j,k].id].show then continue;
 		for t:=1 to 6 do begin
 			nx:=i+dx[t]+idx*16; ny:=j+dy[t]; nz:=k+dz[t]+idy*16;
 			if BDL[(fa as TWorld).GetBlockType(nx,ny,nz)].trsp then begin
-				blk[i,j,k].Redraw; break;
+				rl.PushBack(blk[i,j,k]); break;
 			end;
 		end;
 	end;
+end;
+procedure TChunk.Redraw;
+var
+	i:TBlockList.TVectorEnumerator;
+	b:TBlock;
+begin
+	glPushMatrix;
+	glTranslatef(idx*16,0,idy*16);
+	i:=rl.GetEnumerator;
+	// writeln('Redrawing Chunk:',idx,',',idy,':',rl.Size);
+	repeat
+		b:=i.Current; b.Redraw;
+	until not i.MoveNext;
 	glPopMatrix;
 end;
 

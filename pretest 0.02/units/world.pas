@@ -56,7 +56,7 @@ begin
 end;
 function TWorld.GetBlockType(x,y,z:longint):longint;
 begin
-	if (x<0)or(y<0)or(z<0) then exit(0);
+	if (x<0)or(y<0)or(z<0) then begin writeln('----'); exit(1); end;
 	exit(GetBlockType(x div 16,z div 16,x mod 16,y,z mod 16));
 end;
 procedure TWorld.Redraw;
@@ -67,7 +67,7 @@ begin
 	i:=cm.Min;
 	repeat
 		c:=i.Value; c.Redraw;
-	until not i.next;
+	until not i.Next;
 end;
 
 end.

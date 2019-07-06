@@ -103,9 +103,9 @@ begin
 	InitGL;
 	InitBML;
 	w:=TWorld.Create;
+	w.InsertChunk(0,0);
+	w.InsertChunk(0,1);
+	w.InsertChunk(1,0);
 	w.InsertChunk(1,1);
-	w.InsertChunk(1,2);
-	w.InsertChunk(2,1);
-	w.InsertChunk(2,2);
 	glaLoop;
 end.
