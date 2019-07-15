@@ -1,5 +1,5 @@
 {
-Cubearth pretest 0.01
+Cubearth pretest 0.02
 主程序
 By FPC5719
 }
